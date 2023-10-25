@@ -1,0 +1,32 @@
+name: AWS Identity Center
+run-name: AWS Identity Center
+on: push
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+jobs:
+  requirements:
+    runs-on: ubuntu-latest
+    name: Checkout and Requirements
+    steps:
+      - name: Install tfswitch
+        run: curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/release/install.sh | sudo bash
+      - name: Set terraform version
+        run: tfswitch 1.6.2
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    needs: requirements
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3    
+      - name: Terraform init
+        run: terraform init
+        working-directory: examples
+      - name: Terraform plan
+        run: terraform plan -out tf.plan
+        working-directory: examples
+      - name: Terraform apply
+        run: terraform apply tf.plan
+        working-directory: examples
+
