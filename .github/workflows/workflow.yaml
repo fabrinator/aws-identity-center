@@ -47,7 +47,6 @@ jobs:
 
       - name: Add Plan Job Summary
         run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
-        working-directory: infrastructure
       - name: View context attributes
         uses: actions/github-script@v6
         with:
