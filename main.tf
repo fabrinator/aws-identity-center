@@ -1,5 +1,5 @@
 module "aws-identity-center" {
-  source = "../"
+  source = "module"
   users = [
     {
       name = "fabri"
