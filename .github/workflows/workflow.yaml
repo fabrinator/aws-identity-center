@@ -73,6 +73,13 @@ jobs:
         with:
           name: Plan
           path: terraform.plan
+      - name: Set outputs
+        id: set-outputs
+        run: |
+          echo "output1=Hello" >> $GITHUB_OUTPUT
+          echo "output2=World" >> $GITHUB_OUTPUT
+          echo "output3=!" >> $GITHUB_OUTPUT
+
       - name: View all outputs
         run: |
           echo "Contents of the \$GITHUB_OUTPUT file:"
