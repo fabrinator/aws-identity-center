@@ -83,7 +83,7 @@ jobs:
     steps:
       - name: View all outputs
         run: |
-          echo "${{ needs.output-job.outputs}}"
+          echo "${{ needs.terraform_plan.outputs}}"
 #      - name: View context attributes
 #        uses: actions/github-script@v6
 #        with:
