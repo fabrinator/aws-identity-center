@@ -34,7 +34,7 @@ jobs:
       - id: plan
         run: terraform plan -no-color
       - name: Add Plan Job Summary
-        run: echo ${{ steps.plan.outputs.stdout }}>> $GITHUB_STEP_SUMMARY
+        run: echo "${{ steps.plan.outputs.stdout }}" >> $GITHUB_STEP_SUMMARY
       - name: Approval comment
         uses: actions/github-script@v6
         with:
