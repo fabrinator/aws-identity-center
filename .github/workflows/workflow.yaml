@@ -34,19 +34,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Set outputs
-        id: set-outputs
-        run: |
-          echo "output1=Hello" >> $GITHUB_OUTPUT
       - name: Terraform init
         run: terraform init
       - name: Terraform plan
-        id: terraform_plan
+        id: set-outputs
         run: |
           set +e
           terraform plan -out terraform.plan -detailed-exitcode
           PLAN_EXITCODE="$?"
-#          echo "output1=Hola" >> $GITHUB_OUTPUT
+          echo "output1=Hola" >> $GITHUB_OUTPUT
 
       - name: Add Plan Job Summary
         run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
