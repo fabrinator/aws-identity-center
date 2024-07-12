@@ -83,8 +83,7 @@ jobs:
     steps:
       - name: View all outputs
         run: |
-          echo "Contents of the \$GITHUB_OUTPUT file:"
-          cat $GITHUB_OUTPUT
+          echo "${{ needs.output-job.outputs}}"
 #      - name: View context attributes
 #        uses: actions/github-script@v6
 #        with:
