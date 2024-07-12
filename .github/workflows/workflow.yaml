@@ -32,9 +32,8 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - run: terraform init
       - id: plan
-        run: terraform plan -no-color
-      - name: Add Plan Job Summary
-        run: echo "${{ steps.plan.outputs.stdout }}" >> $GITHUB_STEP_SUMMARY
+        run: terraform plan -no-color -out terraform.plan
+      - run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
       - name: Approval comment
         uses: actions/github-script@v6
         with:
