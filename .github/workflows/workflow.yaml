@@ -29,6 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: requirements
     environment: auto
+    outputs:
+      plan_exitcode: ${{ steps.terraform_plan.outputs.PLAN_EXITCODE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -72,6 +74,7 @@ jobs:
           name: Plan
           path: terraform.plan
   terraform_approval:
+    if: needs.terraform_plan.outputs.plan_exitcode == 2
     name: Terraform Apply
     runs-on: ubuntu-latest
     needs: [ requirements ]
