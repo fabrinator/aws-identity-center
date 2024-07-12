@@ -54,11 +54,11 @@ jobs:
           script: |
             const prNumber = context.issue.number;
             const body = `
-### Terraform Plan Generated
-- [ ] Plan looks good
-- [ ] Plan needs changes
+              ### Terraform Plan Generated
+              - [ ] Plan looks good
+              - [ ] Plan needs changes
 
-Please review and check the appropriate option.
+              Please review and check the appropriate option.
             `;
             github.rest.issues.createComment({
               issue_number: prNumber,
