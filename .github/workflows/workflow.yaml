@@ -73,6 +73,10 @@ jobs:
         with:
           name: Plan
           path: terraform.plan
+      - name: View all outputs
+        run: |
+          echo "Contents of the \$GITHUB_OUTPUT file:"
+          cat $GITHUB_OUTPUT
   terraform_approval:
     if: needs.terraform_plan.outputs.plan_exitcode == '2'
     name: Terraform Apply
