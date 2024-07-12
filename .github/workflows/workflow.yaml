@@ -14,6 +14,10 @@ env:
 jobs:
   output-job:
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.set-outputs.outputs.output1 }}
+      output2: ${{ steps.set-outputs.outputs.output2 }}
+      output3: ${{ steps.set-outputs.outputs.output3 }}
 
     steps:
       - name: Checkout repository
@@ -25,11 +29,6 @@ jobs:
           echo "output1=Hello" >> $GITHUB_OUTPUT
           echo "output2=World" >> $GITHUB_OUTPUT
           echo "output3=!" >> $GITHUB_OUTPUT
-
-      - name: View all outputs
-        run: |
-          echo "Contents of the \$GITHUB_OUTPUT file:"
-          cat $GITHUB_OUTPUT
 
   use-outputs:
     needs: output-job
@@ -44,7 +43,6 @@ jobs:
           echo "Output1: ${{ needs.output-job.outputs.output1 }}"
           echo "Output2: ${{ needs.output-job.outputs.output2 }}"
           echo "Output3: ${{ needs.output-job.outputs.output3 }}"
-#
 #jobs:
 #  requirements:
 #    runs-on: ubuntu-latest
