@@ -30,7 +30,7 @@ jobs:
     needs: requirements
     environment: auto
     outputs:
-      terraform_plan_exit_code: ${{ steps.set-outputs.outputs.terraform_plan_exit_code }}
+      terraform_plan_exit_code: ${{ steps.terraform_plan.outputs.terraform_plan_exit_code }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
