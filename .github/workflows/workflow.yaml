@@ -56,6 +56,7 @@ jobs:
               ### Terraform Plan Generated
               - [ ] Plan looks good
               - [ ] Plan needs changes
+              lets go
 
               Please review and check the appropriate option.
             `;
