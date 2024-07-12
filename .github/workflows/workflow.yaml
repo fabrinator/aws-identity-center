@@ -76,7 +76,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
       - name: Terraform init
         run: terraform init
       - name: Download terraform plan
