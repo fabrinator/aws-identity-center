@@ -3,7 +3,6 @@ run-name: Terraform workflow
 on:
   pull_request:
     types:
-      - closed
       - opened
       - synchronize
 env:
