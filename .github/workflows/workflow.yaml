@@ -79,7 +79,7 @@ jobs:
 #    if: needs.terraform_plan.outputs.plan_exitcode == '2'
     name: Terraform Apply
     runs-on: ubuntu-latest
-    needs: [ requirements, output-job ]
+    needs: [ requirements, terraform_plan ]
     environment: manual_approval
     steps:
       - name: View all outputs
