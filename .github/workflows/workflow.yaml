@@ -25,6 +25,7 @@ jobs:
       - name: Check terraform version
         run: terraform --version
   terraform_plan:
+    if: github.event.pull_request.merged == false
     name: Terraform Plan
     runs-on: ubuntu-latest
     needs: requirements
