@@ -37,7 +37,7 @@ jobs:
   terraform_plan:
     name: Terraform
     runs-on: ubuntu-latest
-    needs: requirements
+    needs: [requirements, terraform_init]
     environment: auto
     steps:
       - name: Terraform plan
