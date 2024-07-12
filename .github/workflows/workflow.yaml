@@ -42,7 +42,7 @@ jobs:
           set +e
           terraform plan -out terraform.plan -detailed-exitcode
           PLAN_EXITCODE="$?"
-          echo "terraform_plan_exit_code=HOLA" >> $GITHUB_OUTPUT
+          echo "terraform_plan_exit_code=$PLAN_EXITCODE" >> $GITHUB_OUTPUT
 
       - name: Add Plan Job Summary
         run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
