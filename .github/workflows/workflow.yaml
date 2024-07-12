@@ -30,19 +30,19 @@ jobs:
     needs: requirements
     environment: auto
     outputs:
-      plan_exitcode: ${{ steps.terraform_plan.outputs.PLAN_EXITCODE }}
+      output1: ${{ steps.set-outputs.outputs.output1 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Terraform init
         run: terraform init
       - name: Terraform plan
-        id: terraform_plan
+        id: set-outputs
         run: |
           set +e
           terraform plan -out terraform.plan -detailed-exitcode
           PLAN_EXITCODE="$?"
-          echo "PLAN_EXITCODE=$PLAN_EXITCODE" >> $GITHUB_OUTPUT
+          echo "output1=Hola" >> $GITHUB_OUTPUT
       - name: Add Plan Job Summary
         run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
       - name: View context attributes
