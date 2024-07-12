@@ -83,7 +83,7 @@ jobs:
     steps:
       - name: View all outputs
         run: |
-          echo "${{ needs.terraform_plan.outputs.PLAN_EXITCODE}}"
+          echo "${{ needs.output-job.outputs.output1 }}"
 #      - name: View context attributes
 #        uses: actions/github-script@v6
 #        with:
