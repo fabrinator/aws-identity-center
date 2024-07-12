@@ -29,6 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: requirements
     environment: auto
+    outputs:
+      terraform_plan_exit_code: ${{ steps.terraform_plan.outputs.terraform_plan_exit_code }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -40,7 +42,8 @@ jobs:
           set +e
           terraform plan -out terraform.plan -detailed-exitcode
           PLAN_EXITCODE="$?"
-          echo "PLAN_EXITCODE=$PLAN_EXITCODE" >> $GITHUB_OUTPUT
+          echo "terraform_plan_exit_code=$PLAN_EXITCODE" >> $GITHUB_OUTPUT
+
       - name: Add Plan Job Summary
         run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
       - name: View context attributes
@@ -56,6 +59,7 @@ jobs:
               ### Terraform Plan Generated
               - [ ] Plan looks good
               - [ ] Plan needs changes
+              lets go
 
               Please review and check the appropriate option.
             `;
@@ -70,21 +74,26 @@ jobs:
         with:
           name: Plan
           path: terraform.plan
+
   terraform_approval:
+    if: needs.terraform_plan.outputs.terraform_plan_exit_code == '2'
     name: Terraform Apply
     runs-on: ubuntu-latest
-    needs: [ requirements ]
+    needs: [ requirements, terraform_plan ]
     environment: manual_approval
     steps:
-      - name: View context attributes
-        uses: actions/github-script@v6
-        with:
-          script: console.log(context)
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Download terraform plan
-        uses: actions/download-artifact@v3
-        with:
-          name: Plan
-      - name: Terraform Apply
-        run: terraform init && terraform apply terraform.plan
+      - name: View all outputs
+        run: |
+          echo "${{ needs.terraform_plan.outputs.terraform_plan_exit_code }}"
+#      - name: View context attributes
+#        uses: actions/github-script@v6
+#        with:
+#          script: console.log(context)
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Download terraform plan
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: Plan
+#      - name: Terraform Apply
+#        run: terraform init && terraform apply terraform.plan
