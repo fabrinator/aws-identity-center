@@ -25,7 +25,6 @@ jobs:
       - name: Check terraform version
         run: terraform --version
   terraform_plan:
-    if: github.event.pull_request.merged == false
     name: Terraform Plan
     runs-on: ubuntu-latest
     needs: requirements
@@ -69,8 +68,14 @@ jobs:
     needs: [ requirements ]
     environment: manual_approval
     steps:
+      - name: View context attributes
+        uses: actions/github-script@v6
+        with:
+          script: console.log(context)
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: refs/pull/${{ github.ref_name }}
       - name: Terraform init
         run: terraform init
       - name: Download terraform plan
