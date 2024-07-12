@@ -48,15 +48,24 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: console.log(context)
-      - uses: actions/github-script@v6
+      - name: Approval comment
+        uses: actions/github-script@v6
         with:
           script: |
+            const prNumber = context.issue.number;
+            const body = `
+### Terraform Plan Generated
+- [ ] Plan looks good
+- [ ] Plan needs changes
+
+Please review and check the appropriate option.
+            `;
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: prNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '👋 Thanks for reporting!'
-            })
+              body: body
+            });
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
