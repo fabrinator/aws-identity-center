@@ -12,67 +12,13 @@ env:
   AWS_REGION: "us-east-1"
 
 jobs:
-  requirements:
+  output-job:
     runs-on: ubuntu-latest
-    name: Requirements
-    environment:  auto
-    steps:
-      - run: rm -rf /usr/local/bin/terraform
-      - name: Install tfswitch
-        run: curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/master/install.sh | bash -s -- -b $HOME/.local/bin
-      - name: Set terraform version
-        run: tfswitch 1.6.2
-      - name: Check terraform version
-        run: terraform --version
-  terraform_plan:
-    name: Terraform Plan
-    runs-on: ubuntu-latest
-    needs: requirements
-    environment: auto
-    outputs:
-      plan_exitcode: ${{ steps.terraform_plan.outputs.PLAN_EXITCODE }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Terraform init
-        run: terraform init
-      - name: Terraform plan
-        id: terraform_plan
-        run: |
-          set +e
-          terraform plan -out terraform.plan -detailed-exitcode
-          PLAN_EXITCODE="$?"
-          echo "PLAN_EXITCODE=$PLAN_EXITCODE" >> $GITHUB_OUTPUT
-      - name: Add Plan Job Summary
-        run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
-      - name: View context attributes
-        uses: actions/github-script@v6
-        with:
-          script: console.log(context)
-      - name: Approval comment
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const prNumber = context.issue.number;
-            const body = `
-              ### Terraform Plan Generated
-              - [ ] Plan looks good
-              - [ ] Plan needs changes
-              lets go
 
-              Please review and check the appropriate option.
-            `;
-            github.rest.issues.createComment({
-              issue_number: prNumber,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: Plan
-          path: terraform.plan
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Set outputs
         id: set-outputs
         run: |
@@ -84,22 +30,110 @@ jobs:
         run: |
           echo "Contents of the \$GITHUB_OUTPUT file:"
           cat $GITHUB_OUTPUT
-  terraform_approval:
-    if: needs.terraform_plan.outputs.plan_exitcode == '2'
-    name: Terraform Apply
+
+  use-outputs:
+    needs: output-job
     runs-on: ubuntu-latest
-    needs: [ requirements ]
-    environment: manual_approval
+
     steps:
-      - name: View context attributes
-        uses: actions/github-script@v6
-        with:
-          script: console.log(context)
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Download terraform plan
-        uses: actions/download-artifact@v3
-        with:
-          name: Plan
-      - name: Terraform Apply
-        run: terraform init && terraform apply terraform.plan
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Use outputs
+        run: |
+          echo "Output1: ${{ needs.output-job.outputs.output1 }}"
+          echo "Output2: ${{ needs.output-job.outputs.output2 }}"
+          echo "Output3: ${{ needs.output-job.outputs.output3 }}"
+#
+#jobs:
+#  requirements:
+#    runs-on: ubuntu-latest
+#    name: Requirements
+#    environment:  auto
+#    steps:
+#      - run: rm -rf /usr/local/bin/terraform
+#      - name: Install tfswitch
+#        run: curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/master/install.sh | bash -s -- -b $HOME/.local/bin
+#      - name: Set terraform version
+#        run: tfswitch 1.6.2
+#      - name: Check terraform version
+#        run: terraform --version
+#  terraform_plan:
+#    name: Terraform Plan
+#    runs-on: ubuntu-latest
+#    needs: requirements
+#    environment: auto
+#    outputs:
+#      plan_exitcode: ${{ steps.terraform_plan.outputs.PLAN_EXITCODE }}
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Terraform init
+#        run: terraform init
+#      - name: Terraform plan
+#        id: terraform_plan
+#        run: |
+#          set +e
+#          terraform plan -out terraform.plan -detailed-exitcode
+#          PLAN_EXITCODE="$?"
+#          echo "PLAN_EXITCODE=$PLAN_EXITCODE" >> $GITHUB_OUTPUT
+#      - name: Add Plan Job Summary
+#        run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
+#      - name: View context attributes
+#        uses: actions/github-script@v6
+#        with:
+#          script: console.log(context)
+#      - name: Approval comment
+#        uses: actions/github-script@v6
+#        with:
+#          script: |
+#            const prNumber = context.issue.number;
+#            const body = `
+#              ### Terraform Plan Generated
+#              - [ ] Plan looks good
+#              - [ ] Plan needs changes
+#              lets go
+#
+#              Please review and check the appropriate option.
+#            `;
+#            github.rest.issues.createComment({
+#              issue_number: prNumber,
+#              owner: context.repo.owner,
+#              repo: context.repo.repo,
+#              body: body
+#            });
+#      - name: Upload artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: Plan
+#          path: terraform.plan
+#      - name: Set outputs
+#        id: set-outputs
+#        run: |
+#          echo "output1=Hello" >> $GITHUB_OUTPUT
+#          echo "output2=World" >> $GITHUB_OUTPUT
+#          echo "output3=!" >> $GITHUB_OUTPUT
+#
+#      - name: View all outputs
+#        run: |
+#          echo "Contents of the \$GITHUB_OUTPUT file:"
+#          cat $GITHUB_OUTPUT
+#  terraform_approval:
+#    if: needs.terraform_plan.outputs.plan_exitcode == '2'
+#    name: Terraform Apply
+#    runs-on: ubuntu-latest
+#    needs: [ requirements ]
+#    environment: manual_approval
+#    steps:
+#      - name: View context attributes
+#        uses: actions/github-script@v6
+#        with:
+#          script: console.log(context)
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Download terraform plan
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: Plan
+#      - name: Terraform Apply
+#        run: terraform init && terraform apply terraform.plan
