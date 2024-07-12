@@ -16,8 +16,7 @@ jobs:
     name: Requirements
     environment:  auto
     uses: ./.github/workflows/setup-terraform.yaml
-    steps:
-      - run: terraform --version
+
   terraform_plan:
     name: Terraform Plan
     runs-on: ubuntu-latest
