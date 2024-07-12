@@ -83,16 +83,16 @@ jobs:
     steps:
       - name: View all outputs
         run: |
-          echo "${{ needs.terraform_plan.outputs.terraform_plan_exit_code }}"
-#      - name: View context attributes
-#        uses: actions/github-script@v6
-#        with:
-#          script: console.log(context)
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#      - name: Download terraform plan
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: Plan
-#      - name: Terraform Apply
-#        run: terraform init && terraform apply terraform.plan
+          echo "${{ needs.terraform_plan.outputs }}"
+      - name: View context attributes
+        uses: actions/github-script@v6
+        with:
+          script: console.log(context)
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download terraform plan
+        uses: actions/download-artifact@v3
+        with:
+          name: Plan
+      - name: Terraform Apply
+        run: terraform init && terraform apply terraform.plan
