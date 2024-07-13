@@ -16,7 +16,12 @@ jobs:
     name: Requirements
     environment:  auto
     steps:
-    - run: terraform --version
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Enable Pull Request Automerge
+      run: gh pr merge --merge --auto "1"
+      env:
+        GH_TOKEN: ${{ github.token }}
     - uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: "1.9.2"
@@ -90,10 +95,6 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.9.2"
-      - name: View context attributes
-        uses: actions/github-script@v6
-        with:
-          script: console.log(context)
       - name: Checkout
         uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v3
