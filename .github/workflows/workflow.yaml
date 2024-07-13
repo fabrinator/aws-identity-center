@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Requirements
     environment:  auto
+    with:
+      terraform_version: "1.6.2"
     steps:
       - uses: hashicorp/setup-terraform@v3
       - run: terraform --version
