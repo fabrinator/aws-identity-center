@@ -16,8 +16,10 @@ jobs:
     name: Requirements
     environment:  auto
     steps:
-    - run: terraform --version
-    - uses: hashicorp/setup-terraform@v3
+    - name: Enable Pull Request Automerge
+      run: gh pr merge --merge --auto "1"
+      env:
+        GH_TOKEN: ${{ secrets.PAT }}
       with:
         terraform_version: "1.9.2"
     - run: terraform --version
