@@ -18,9 +18,7 @@ jobs:
     environment:  auto
     steps:
     - run: terraform --version
-    - uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: "1.1.7"
+    - <<: *setup-terraform
     - run: terraform --version
   terraform_plan:
     name: Terraform Plan
@@ -33,9 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - run: terraform --version
-      - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.1.7"
+      - <<: *setup-terraform
       - run: terraform --version
 #      - run: terraform init
 #      - id: plan
@@ -72,6 +68,7 @@ jobs:
     needs: [ requirements, terraform_plan ]
     environment: manual_approval
     steps:
+      - <<: *setup-terraform
       - run: terraform --version
 #      - name: View context attributes
 #        uses: actions/github-script@v6
@@ -86,3 +83,9 @@ jobs:
 #          name: Plan
 #      - name: Terraform Apply
 #        run: terraform init && terraform apply terraform.plan
+
+
+setup-terraform: &setup-terraform
+  uses: hashicorp/setup-terraform@v3
+  with:
+    terraform_version: "1.1.7"
