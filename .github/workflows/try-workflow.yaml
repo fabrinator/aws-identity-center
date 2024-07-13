@@ -4,6 +4,6 @@ on:
   - push
 jobs:
   call-workflow-passing-data:
-    uses: fabrinator/actions/.github/workflows/terraform.yaml@main
+    uses: fabrinator/actions/.github/workflows/terraform.yaml
     with:
       config-path: .github/labeler.yml
