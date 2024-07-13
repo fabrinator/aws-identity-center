@@ -9,7 +9,6 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: "us-east-1"
-  terraform_version: "1.6.2"
 
 jobs:
   requirements:
@@ -20,7 +19,7 @@ jobs:
     - run: terraform --version
     - uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: "1.1.7"
+        terraform_version: "1.9.2"
     - run: terraform --version
   terraform_plan:
     name: Terraform Plan
@@ -32,41 +31,39 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - run: terraform --version
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.1.7"
-      - run: terraform --version
-#      - run: terraform init
-#      - id: plan
-#        run: terraform plan -detailed-exitcode -no-color -out terraform.plan
-#      - run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
-#      - name: Approval comment
-#        uses: actions/github-script@v6
-#        with:
-#          script: |
-#            const prNumber = context.issue.number;
-#            const body = `
-#              ### Terraform Plan Generated
-#              - [ ] Plan looks good
-#              - [ ] Plan needs changes
-#
-#              Please review and check the appropriate option.
-#            `;
-#            github.rest.issues.createComment({
-#              issue_number: prNumber,
-#              owner: context.repo.owner,
-#              repo: context.repo.repo,
-#              body: body
-#            });
-#      - name: Upload artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: Plan
-#          path: terraform.plan
+          terraform_version: "1.9.2"
+      - run: terraform init
+      - id: plan
+        run: terraform plan -detailed-exitcode -no-color -out terraform.plan
+      - run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
+      - name: Approval comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prNumber = context.issue.number;
+            const body = `
+              ### Terraform Plan Generated
+              - [ ] Plan looks good
+              - [ ] Plan needs changes
+
+              Please review and check the appropriate option.
+            `;
+            github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Plan
+          path: terraform.plan
 
   terraform_approval:
-#    if: needs.terraform_plan.outputs.exitcode == '2'
+    if: needs.terraform_plan.outputs.exitcode == '2'
     name: Terraform Apply
     runs-on: ubuntu-latest
     needs: [ requirements, terraform_plan ]
@@ -74,19 +71,18 @@ jobs:
     steps:
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.1.7"
-      - run: terraform --version
-#      - name: View context attributes
-#        uses: actions/github-script@v6
-#        with:
-#          script: console.log(context)
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#      - uses: hashicorp/setup-terraform@v3
-#      - name: Download terraform plan
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: Plan
-#      - name: Terraform Apply
-#        run: terraform init && terraform apply terraform.plan
+          terraform_version: "1.9.2"
+      - name: View context attributes
+        uses: actions/github-script@v6
+        with:
+          script: console.log(context)
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v3
+      - name: Download terraform plan
+        uses: actions/download-artifact@v3
+        with:
+          name: Plan
+      - name: Terraform Apply
+        run: terraform init && terraform apply terraform.plan
 
