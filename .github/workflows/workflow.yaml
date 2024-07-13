@@ -23,9 +23,10 @@ jobs:
       with:
         script: console.log(context)
     - name: Enable Pull Request Automerge
-      run: gh pr merge "fix/structure" --merge --auto
+      run: gh pr merge $GITHUB_HEAD_REF --merge --auto
       env:
         GH_TOKEN: ${{ github.token }}
+        BRANCH: ${{ github.ref_name }}
     - uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: "1.9.2"
