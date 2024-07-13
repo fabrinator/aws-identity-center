@@ -16,58 +16,64 @@ jobs:
     name: Requirements
     environment:  auto
     steps:
-      - run: rm -rf /usr/local/bin/terraform
-      - name: Install tfswitch
-        run: curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/master/install.sh | bash -s -- -b $HOME/.local/bin
-      - name: Set terraform version
-        run: tfswitch 1.6.2
-      - name: Check terraform version
-        run: terraform --version
+    - run: terraform --version
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.9.2"
+    - run: terraform --version
   terraform_plan:
     name: Terraform Plan
     runs-on: ubuntu-latest
     needs: requirements
     environment: auto
     outputs:
-      terraform_plan_exit_code: ${{ steps.terraform_plan.outputs.terraform_plan_exit_code }}
+      exitcode: ${{ steps.plan.outputs.exitcode }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Terraform init
-        run: terraform init
-      - name: Terraform plan
-        id: terraform_plan
-        run: |
-          set +e
-          terraform plan -out terraform.plan -detailed-exitcode
-          PLAN_EXITCODE="$?"
-          echo "terraform_plan_exit_code=$PLAN_EXITCODE" >> $GITHUB_OUTPUT
-
-      - name: Add Plan Job Summary
-        run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
-      - name: View context attributes
-        uses: actions/github-script@v6
+      - uses: hashicorp/setup-terraform@v3
         with:
-          script: console.log(context)
-      - name: Approval comment
-        uses: actions/github-script@v6
+          terraform_version: "1.9.2"
+      - run: terraform init
+      - id: plan
+        run: terraform plan -detailed-exitcode -no-color -out terraform.plan
+      - run: terraform show -no-color terraform.plan >> $GITHUB_STEP_SUMMARY
+      - uses: actions/github-script@v7
+        name: Plan to comment
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
           script: |
-            const prNumber = context.issue.number;
-            const body = `
-              ### Terraform Plan Generated
-              - [ ] Plan looks good
-              - [ ] Plan needs changes
-              lets go
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
 
-              Please review and check the appropriate option.
-            `;
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
             github.rest.issues.createComment({
-              issue_number: prNumber,
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: body
-            });
+              body: output
+            })
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -75,24 +81,26 @@ jobs:
           path: terraform.plan
 
   terraform_approval:
-    if: needs.terraform_plan.outputs.terraform_plan_exit_code == '2'
+    if: needs.terraform_plan.outputs.exitcode == '2'
     name: Terraform Apply
     runs-on: ubuntu-latest
     needs: [ requirements, terraform_plan ]
     environment: manual_approval
     steps:
-      - name: View all outputs
-        run: |
-          echo "${{ needs.terraform_plan.outputs }}"
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.2"
       - name: View context attributes
         uses: actions/github-script@v6
         with:
           script: console.log(context)
       - name: Checkout
         uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v3
       - name: Download terraform plan
         uses: actions/download-artifact@v3
         with:
           name: Plan
       - name: Terraform Apply
         run: terraform init && terraform apply terraform.plan
+
