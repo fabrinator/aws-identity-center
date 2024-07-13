@@ -18,6 +18,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+    - name: View context attributes
+      uses: actions/github-script@v6
+      with:
+        script: console.log(context)
     - name: Enable Pull Request Automerge
       run: gh pr merge "fix/structure" --merge --auto
       env:
