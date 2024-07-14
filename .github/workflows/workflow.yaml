@@ -12,4 +12,5 @@ jobs:
     uses: fabrinator/actions/.github/workflows/terraform.yaml@main
     with:
       terraform_version: "1.9.2"
+      AWS_REGION: "us-east-1"
     secrets: inherit
